@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="all" name="openNios">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="7"/>
+    <property name="source" value="7"/>
+    <path id="openDLX.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="lib_local/apache-log4j-1.2.17/log4j-1.2.17.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete file="openNios.jar"/>
+		<delete file="openNios_deploy.zip"/>
+    </target>
+    <target name="clean_doxy">
+    	<delete dir="doc/doxygen/html"/>
+    </target>
+    <target depends="clean,clean_doxy" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}" includeantruntime="false">
+            <src path="src"/>
+            <classpath refid="openDLX.classpath"/>
+        </javac>
+    </target>
+	<target name="create_run_jar">
+		<mkdir dir="./bin/META-INF/"/>
+			<copy file="LICENSE" tofile="./bin/META-INF/LICENSE.openNios"/>
+			<copy file="README.md" tofile="./bin/META-INF/README.openNios"/>
+			<copy file="lib_local/apache-log4j-1.2.17/LICENSE" tofile="./bin/META-INF/LICENSE.log4j"/>
+			<copy file="lib_local/apache-log4j-1.2.17/NOTICE" tofile="./bin/META-INF/NOTICE.log4j"/>
+		<mkdir dir="./bin/img/"/>
+			<copy file="img/openDLX_small.png" tofile="./bin/img/openDLX_small.png"/>
+			<copy file="img/openDLX-quadrat128x128.png" tofile="./bin/img/openDLX-quadrat128x128.png"/>
+			<copy file="img/openDLX-quadrat16x16.png" tofile="./bin/img/openDLX-quadrat16x16.png"/>
+        <jar destfile="openNios.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="openDLX.main.OpenDLXSimulatorMain"/>
+				<attribute name="Class-Path" value="."/>
+				<attribute name="Implementation-Vendor" value="University of Augsburg"/>
+				<attribute name="Implementation-Title" value="openDLX"/>
+			</manifest>
+            <fileset dir="./bin"/>
+			<zipfileset includes="**/*.class" src="lib_local/apache-log4j-1.2.17/log4j-1.2.17.jar"/>
+        </jar>
+    </target>
+    <target depends="build,create_run_jar" name="build_and_package"/>
+	<!--	<target name="generate-doxygen-docs">
+		  <taskdef name="doxygen" classname="org.doxygen.tools.DoxygenTask" 
+		    classpath="lib_local/ant-doxygen/lib/ant_doxygen.jar" />
+		  <doxygen configFilename="openDLX.Doxyfile">
+		           <property name="INPUT" value="${srcdir}" />
+		           <property name="RECURSIVE" value="yes" />
+		  </doxygen>
+	  </target>-->
+	  <target depends="build_and_package" name="deploy">
+		  <delete file="openNios_deploy.zip"/>
+		  <zip destfile="openNios_deploy.zip">
+			  <zipfileset dir="." includes="openNios.jar"/>
+			  <zipfileset dir="." includes="README.md"/>
+			  <zipfileset dir="." includes="LICENSE"/>
+			  <zipfileset dir="." includes="run_openDLX.sh"/>
+		  </zip>
+	  </target>
+<!-- Change with the following one    <target depends="build_and_package,generate-doxygen-docs,deploy" name="all"/>  -->
+    <target depends="build_and_package,deploy" name="all"/>
+</project>
