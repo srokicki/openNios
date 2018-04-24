@@ -140,8 +140,8 @@ public class Simulator{
             this.memoryStages = new ArrayList<Memory>();
             this.writeBackStages = new ArrayList<WriteBack>();
             
-            int numberExecute = 3;
-            int numberMemory = 2;
+            int numberExecute = ArchCfg.execute_stage;
+            int numberMemory = ArchCfg.memory_stage;
             
             
             this.registerFile = new RegisterFile();

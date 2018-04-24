@@ -159,6 +159,18 @@ public class ElfFileParser {
 
 						memory.setWord(relocationAddress, new NiosValue32(instruction, false));
 					}
+					else if (relocationType == 3){
+						//This is a %pcrel16 relocation
+						long value = relocationValue & 0xffff;
+						value = value - relocationAddress;
+						value = value << 6; //We align the value with the immediate field of IType expressions
+						
+						long instruction = memory.loadWord(relocationAddress).getUnsignedValue(); //This is the previous instruction
+						instruction = instruction | value; //We add the immediate value
+
+						memory.setWord(relocationAddress, new NiosValue32(instruction, false));
+					}
+					
 					System.out.println("Relocating (type " + Long.toHexString(relocationType)+ ") at address 0x" + Long.toHexString(relocationAddress) + " value 0x" + Long.toHexString(relocationValue));
 					
 				}

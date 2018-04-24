@@ -43,14 +43,16 @@ public class ArchCfg
 
 //   public static String assemblerPath = "/home/nanjing/Documents/lab2/nios2-elf-as";
 
-   public static String assemblerPath = "/local/altera/14.0/nios2eds/bin/gnu/H-x86_64-pc-linux-gnu/bin/nios2-elf-as";
+    public static String assemblerPath = "external_bin/lnx-nios2-elf-as";
+
+//   public static String assemblerPath = "/local/altera/14.0/nios2eds/bin/gnu/H-x86_64-pc-linux-gnu/bin/nios2-elf-as";
    // public static String assemblerPath = "c:\\altera\\12.1sp1\\nios2eds\\bin\\gnu\\H-i686-mingw32\\bin\\nios2-elf-as";
 
     public static int max_cycles = Preference.pref.getInt(Preference.maxCyclesPreferenceKey, 10000);
     
-    public static int execute_stage = Preference.pref.getInt("numberexecutestage", 4);
+    public static int execute_stage = Preference.pref.getInt("numberexecutestage", 3);
 
-    public static int memory_stage = Preference.pref.getInt("numbermemorystage", 4);
+    public static int memory_stage = Preference.pref.getInt("numbermemorystage", 2);
 
     
     public static void registerArchitectureConfig(Properties config)

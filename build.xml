@@ -36,6 +36,9 @@
         </javac>
     </target>
 	<target name="create_run_jar">
+		<mkdir dir="./bin/external_bin/"/>
+			<copy file="external_bin/lnx-nios2-elf-as" tofile="./bin/external_bin/lnx-nios2-elf-as"/>
+			<copy file="external_bin/win-nios2-elf-as" tofile="./bin/external_bin/win-nios2-elf-as"/>
 		<mkdir dir="./bin/META-INF/"/>
 			<copy file="LICENSE" tofile="./bin/META-INF/LICENSE.openNios"/>
 			<copy file="README.md" tofile="./bin/META-INF/README.openNios"/>

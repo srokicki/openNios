@@ -48,7 +48,7 @@ public abstract class CommonFileChooser {
 
         chooser.setFileFilter(getFileFilter());
 
-        path = Preference.pref.get(preferenceKey, path);
+        path = "./";//Preference.pref.get(preferenceKey, path);
         chooser.setCurrentDirectory(new File(path));
         chooser.addPropertyChangeListener(new PropertyChangeListener()
         {

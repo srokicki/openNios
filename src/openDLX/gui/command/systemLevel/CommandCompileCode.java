@@ -27,9 +27,11 @@ import openDLX.gui.command.Command;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -61,7 +63,32 @@ public class CommandCompileCode implements Command
             	
                 String codeFilePath = codeFile.getAbsolutePath().replace("\\", "/");
                 Runtime rt = Runtime.getRuntime();
-                Process ps = rt.exec(ArchCfg.assemblerPath + " " + codeFilePath + " -o ./file.elf");
+                
+                InputStream is;
+                
+                String system = System.getProperty("os.name");
+                if (system.matches(".*Windows.*"))
+            		is = this.getClass().getResource("/external_bin/win-nios2-elf-as").openStream();
+        		else
+        			is = this.getClass().getResource("/external_bin/lnx-nios2-elf-as").openStream();
+                			
+                
+                OutputStream os = new FileOutputStream("./nios2-elf-as");
+                
+                byte[] b = new byte[2048];
+                int length;
+
+                while ((length = is.read(b)) != -1) {
+                    os.write(b, 0, length);
+                }
+
+                is.close();
+                os.close();
+                
+                File file = new File("./nios2-elf-as");
+                file.setExecutable(true);
+                
+                Process ps = rt.exec("./nios2-elf-as" + " " + codeFilePath + " -o ./file.elf");
                 ps.waitFor();
                 ArrayList<String> errorMessage = getStringFromInputStream(ps.getErrorStream());
                 

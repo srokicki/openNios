@@ -39,6 +39,8 @@ import javax.swing.JTextField;
 import openDLX.config.ArchCfg;
 import openDLX.gui.MainFrame;
 import openDLX.gui.Preference;
+import openDLX.gui.command.systemLevel.CommandResetSimulator;
+import openDLX.gui.command.userLevel.CommandResetCurrentProgram;
 
 @SuppressWarnings("serial")
 public class OptionDialog extends JDialog implements ActionListener
@@ -62,6 +64,8 @@ public class OptionDialog extends JDialog implements ActionListener
 
     private JTextField maxCyclesTextField;
     private JTextField numberExecuteTextField;
+    private JTextField numberMemoryTextField;
+
 
     public OptionDialog(Frame owner)
     {
@@ -90,9 +94,11 @@ public class OptionDialog extends JDialog implements ActionListener
          *
          * checkboxes don't need a label -> the name is part of the constructor
          *-> its a single element, hence it doesn't need a JPanel  */
-        forwardingCheckBox = new JCheckBox("Use Forwarding");
-        forwardingCheckBox.setSelected(Preference.pref.getBoolean(Preference.forwardingPreferenceKey, true)); // load current value
-
+        forwardingCheckBox = new JCheckBox("Use Forwarding (not supported yet)");
+//        forwardingCheckBox.setSelected(Preference.pref.getBoolean(Preference.forwardingPreferenceKey, true)); // load current value
+        forwardingCheckBox.setSelected(false); // load current value
+        forwardingCheckBox.setEnabled(false);
+        
         mipsCompatibilityCheckBox = new JCheckBox("MIPS compatibility mode (requires forwarding)");
         mipsCompatibilityCheckBox.setSelected(Preference.pref.getBoolean(Preference.mipsCompatibilityPreferenceKey, true)); // load current value
 
@@ -118,12 +124,12 @@ public class OptionDialog extends JDialog implements ActionListener
          * the field and a JLabel description
          */
         
-        JLabel assemblerTextFieldDescription = new JLabel("Assembler: ");
-        assemblerTextField = new JTextField(40);
-        assemblerTextField.setText(ArchCfg.assemblerPath);
-        JPanel assemblerTextFieldPannel = new JPanel();
-        assemblerTextFieldPannel.add(assemblerTextFieldDescription);
-        assemblerTextFieldPannel.add(assemblerTextField);
+//        JLabel assemblerTextFieldDescription = new JLabel("Assembler: ");
+//        assemblerTextField = new JTextField(40);
+//        assemblerTextField.setText(ArchCfg.assemblerPath);
+//        JPanel assemblerTextFieldPannel = new JPanel();
+//        assemblerTextFieldPannel.add(assemblerTextFieldDescription);
+//        assemblerTextFieldPannel.add(assemblerTextField);
 
         // Max Cycles
         JLabel maxCyclesTextFieldDescription = new JLabel("Maximum Cycles: ");
@@ -153,16 +159,30 @@ public class OptionDialog extends JDialog implements ActionListener
         numberExecuteTextFieldPanel.add(numberExecuteTextField);
 
         
+        //Execute stages
+        JLabel memoryTextFieldDescription = new JLabel("Memory stages: ");
+        // the number in constructor means the number of lines in textfield
+        numberMemoryTextField = new JTextField(10);
+        //load current text from ArchCfg
+        numberMemoryTextField.setText((new Integer(ArchCfg.execute_stage)).toString());
+        //surrounding panel, containing both JLabel and JTextField
+        JPanel numberMemoryTextFieldPanel = new JPanel();
+        //add the label
+        numberMemoryTextFieldPanel.add(memoryTextFieldDescription);
+        //add the field itself
+        numberMemoryTextFieldPanel.add(numberMemoryTextField);
+        
+        
         //this panel contains all input components = top level panel
         JPanel optionPanel = new JPanel();
         optionPanel.setLayout(new GridLayout(0, 1));
 
         //dont forget adding the components to the panel !!!
 
-        optionPanel.add(assemblerTextFieldPannel);
         optionPanel.add(forwardingCheckBox);
         optionPanel.add(maxCyclesTextFieldPanel);
         optionPanel.add(numberExecuteTextFieldPanel);
+        optionPanel.add(numberMemoryTextFieldPanel);
 
         //adds the top-level-panel to the Dialog frame
         add(optionPanel, BorderLayout.CENTER);
@@ -204,13 +224,19 @@ public class OptionDialog extends JDialog implements ActionListener
 
             propagateFWToMenu(forwardingCheckBox.isSelected());
          
-            ArchCfg.assemblerPath = assemblerTextField.getText();
+//            ArchCfg.assemblerPath = assemblerTextField.getText();
             ArchCfg.max_cycles = Integer.parseInt(maxCyclesTextField.getText());
             Preference.pref.put(Preference.maxCyclesPreferenceKey, maxCyclesTextField.getText());
             
             ArchCfg.execute_stage = Integer.parseInt(numberExecuteTextField.getText());
             Preference.pref.put(Preference.numberExecuteStage, numberExecuteTextField.getText());
 
+            ArchCfg.memory_stage = Integer.parseInt(numberMemoryTextField.getText());
+            Preference.pref.put(Preference.numberMemoryStage, numberMemoryTextField.getText());
+
+            CommandResetCurrentProgram reset = new CommandResetCurrentProgram(MainFrame.getInstance());
+            reset.execute();
+            
             setVisible(false);
             dispose();
         }
