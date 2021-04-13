@@ -49,6 +49,8 @@ public class ElfFileParser {
 			
 		}
 		int destination = 0;
+		long idOfText = -1;
+		long idOfData = -1;
 
 		//On current version of the code, we will only write .text and .data sections on memory
 		//We start by writing .text
@@ -61,6 +63,8 @@ public class ElfFileParser {
 				
 				if (getStringFrom(indexOfName+startOfSymbolTable, elfBytes).equals(".text")){
 				
+				idOfText = indexOfName;
+					
 				long startOfTextSection = toUnsignedInt(elfBytes[(int) (placeOfSectionTable + sectionNumber * sizeOfSectionHeader + 16)], 
 						elfBytes[(int) (placeOfSectionTable + sectionNumber * sizeOfSectionHeader + 17)], 
 						elfBytes[(int) (placeOfSectionTable + sectionNumber * sizeOfSectionHeader + 18)], 
@@ -91,6 +95,8 @@ public class ElfFileParser {
 			
 			if (getStringFrom(indexOfName+startOfSymbolTable, elfBytes).equals(".data")){
 			
+				idOfData = indexOfName;
+				
 				long startOfTextSection = toUnsignedInt(elfBytes[(int) (placeOfSectionTable + sectionNumber * sizeOfSectionHeader + 16)], 
 						elfBytes[(int) (placeOfSectionTable + sectionNumber * sizeOfSectionHeader + 17)], 
 						elfBytes[(int) (placeOfSectionTable + sectionNumber * sizeOfSectionHeader + 18)], 
@@ -135,10 +141,28 @@ public class ElfFileParser {
 				
 				for (long relaNumber = 0; relaNumber<sizeOfSection; relaNumber+=12){
 					long relocationAddress = toUnsignedInt(elfBytes[(int) (startOfRelaSection + relaNumber + 0)], elfBytes[(int) (startOfRelaSection + relaNumber + 1)], elfBytes[(int) (startOfRelaSection + relaNumber + 2)], elfBytes[(int) (startOfRelaSection + relaNumber + 3)]);
-					long relocationValue = startOfDataSection; //Current version can only relocate a symbol
 					long relocationInfo = toUnsignedInt(elfBytes[(int) (startOfRelaSection + relaNumber + 4)], elfBytes[(int) (startOfRelaSection + relaNumber + 5)], elfBytes[(int) (startOfRelaSection + relaNumber + 6)], elfBytes[(int) (startOfRelaSection + relaNumber + 7)]);
 					long relocationType = relocationInfo & 0xff;
+					long relocationValue = toUnsignedInt(elfBytes[(int) (startOfRelaSection + relaNumber + 8)], elfBytes[(int) (startOfRelaSection + relaNumber + 9)], elfBytes[(int) (startOfRelaSection + relaNumber + 10)], elfBytes[(int) (startOfRelaSection + relaNumber + 11)]);
+					long relocationSection = (relocationInfo >>8) & 0xff;
+					if (relocationSection == 1) {
+						if (idOfText<idOfData)
+							relocationValue += 0;
+						else
+							relocationValue += startOfDataSection;
+					}
+					else if (relocationSection == 2) {
+						if (idOfText>idOfData)
+							relocationValue += 0;
+						else
+							relocationValue += startOfDataSection;					}
+					else {
+						System.out.println("Unsupported relocation to a section which is not data or text  !");
+					}
 					
+
+					
+					System.out.println("Relocation type is " + relocationType);
 					if (relocationType == 11){
 						//This is a %hiadj relocation
 						long value = ((relocationValue >> 16) & 0xffff) + ((relocationValue >> 15) & 0x01);

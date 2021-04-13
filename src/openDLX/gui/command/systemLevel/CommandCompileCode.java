@@ -67,8 +67,11 @@ public class CommandCompileCode implements Command
                 InputStream is;
                 
                 String system = System.getProperty("os.name");
+                System.out.println("Current system is : " + system);
                 if (system.matches(".*Windows.*"))
             		is = this.getClass().getResource("/external_bin/win-nios2-elf-as").openStream();
+                else if (system.matches(".*Mac.*"))
+        			is = this.getClass().getResource("/external_bin/mac-nios2-elf-as").openStream();
         		else
         			is = this.getClass().getResource("/external_bin/lnx-nios2-elf-as").openStream();
                 			
